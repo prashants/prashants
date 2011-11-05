@@ -1,0 +1,6 @@
+
+# VIM SHORTCUTS
+gg=G					# auto indent source code
+
+# OTHERS
+indent -kr -i8 -l1000 -sob		# beautify source code
