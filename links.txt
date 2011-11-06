@@ -1,0 +1,2 @@
+Git + VIM : http://vim.runpaint.org/extending/integrating-vim-with-git/
+
