@@ -6,10 +6,10 @@ require("awful.rules")
 require("beautiful")
 -- Notification library
 require("naughty")
-
 -- Load Debian menu entries
 require("debian.menu")
 require("vicious")
+require("revelation")
 
 function run_once(prg, args)
   if not prg then
@@ -56,6 +56,14 @@ terminal = "x-terminal-emulator"
 editor = os.getenv("EDITOR") or "editor"
 editor_cmd = terminal .. " -e " .. editor
 
+-- Widgets
+memwidget = widget({ type = "textbox" })
+vicious.cache(vicious.widgets.mem)
+vicious.register(memwidget, vicious.widgets.mem, "(MEM:$1%) ", 13)
+
+cpuwidget = widget({ type = "textbox" })
+vicious.register(cpuwidget, vicious.widgets.cpu, "(CPU:$2% $3%) ")
+
 -- Default modkey.
 -- Usually, Mod4 is the key with a logo between Control and Alt.
 -- If you do not like this or do not have such a key,
@@ -64,6 +72,8 @@ editor_cmd = terminal .. " -e " .. editor
 modkey = "Mod4"
 
 run_once("nm-applet")
+run_once("gnome-sound-applet")
+run_once("xscreensaver","--no-splash")
 
 -- Table of layouts to cover with awful.layout.inc, order matters.
 layouts =
@@ -106,12 +116,13 @@ mymainmenu = awful.menu({ items = {
 --                                    { "Debian", debian.menu.Debian_menu.Debian },
                                     { "firefox", "firefox" },
                                     { "terminal", terminal },
-                                    { "file manager", "marlin" },
+                                    { "file manager", "nautilus --no-desktop" },
                                     { "gedit", "gedit" },
                                     { "synaptic", function() awful.util.spawn_with_shell("xterm -e sh /home/prashants/.config/awesome/synaptic.sh") end },
                                     { "", height="1" },
                                     { "logout", awesome.quit },
                                     { "shutdown", function() awful.util.spawn_with_shell("xterm -e sh /home/prashants/.config/awesome/shutdown.sh") end },
+                                    { "reboot", function() awful.util.spawn_with_shell("xterm -e sh /home/prashants/.config/awesome/reboot.sh") end }
 --                                    { "awesome", myawesomemenu },
                                   }
                         })
@@ -203,6 +214,7 @@ for s = 1, screen.count() do
         },
         mylayoutbox[s],
         mytextclock,
+	cpuwidget, memwidget,
         s == 1 and mysystray or nil,
         mytasklist[s],
         layout = awful.widget.layout.horizontal.rightleft
@@ -269,8 +281,10 @@ globalkeys = awful.util.table.join(
     -- Prompt
     awful.key({ modkey },            "r",     function () mypromptbox[mouse.screen]:run() end),
 
+    -- CUSTOM KEYS
     -- Run applications with dmenu
     awful.key({modkey }, "a", function() awful.util.spawn_with_shell( "exe=`dmenu_path | dmenu -b -fn '-misc-fixed-medium-r-normal-*-20-200-75-75-*-100-*-*' -nf '#888888' -nb '#222222' -sf '#ffffff' -sb '#285577' -p 'command>'` && exec $exe") end),
+    awful.key({modkey}, "e", revelation),
 
     awful.key({ modkey }, "x",
               function ()
@@ -299,7 +313,11 @@ clientkeys = awful.util.table.join(
         function (c)
             c.maximized_horizontal = not c.maximized_horizontal
             c.maximized_vertical   = not c.maximized_vertical
-        end)
+        end),
+
+    awful.key({ modkey,           }, "Left",   awful.tag.viewprev       ),
+    awful.key({ modkey,           }, "Right",  awful.tag.viewnext       ),
+    awful.key({ modkey,           }, "Escape", awful.tag.history.restore)
 )
 
 -- Compute the maximum number of digit we need, limited to 9
@@ -356,14 +374,14 @@ awful.rules.rules = {
     { rule = { },
       properties = { border_width = beautiful.border_width,
                      border_color = beautiful.border_normal,
-                     focus = true,
+                     focus = true, size_hints_honor = false,
                      keys = clientkeys,
                      buttons = clientbuttons } },
     { rule = { class = "Firefox" },
       properties = { tag = tags[1][2] } },
     { rule = { class = "X-terminal-emulator" },
       properties = { tag = tags[1][3] } },
-    { rule = { class = "Marlin" },
+    { rule = { class = "Nautilus" },
       properties = { tag = tags[1][4] } },
     { rule = { class = "Gedit" },
       properties = { tag = tags[1][5] } },

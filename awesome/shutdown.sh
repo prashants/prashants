@@ -1,2 +1,2 @@
-sudo shutdown -h now
-
+#!/bin/bash
+shutdown -h now
