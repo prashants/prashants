@@ -1,15 +1,18 @@
 " for c programs
 set number			" show line number
-set textwidth=80		" set code width
+" set textwidth=80		" set code width
 set makeprg=gcc\ -o\ %<\ %	" automatically compile with make
 set showmatch 			" highlight matching braces
 set comments=sl:/*,mb:\ *,elx:\ */	" intelligent comments
+
+" for linux kernel
+" set tags=~/kernel/current/ctag.out
 
 set autoindent			" always set autoindenting on
 set smartindent			" smart indent
 set cindent			" cindent
 set smarttab
-" set expandtab
+" set expandtab			" use space not tabs
 set wrap			" wrap lines
 
 " code folding
@@ -25,7 +28,7 @@ set statusline+=%h%m%r%w                        " flags
 set statusline+=[%{strlen(&ft)?&ft:'none'},     " filetype
 set statusline+=%{strlen(&fenc)?&fenc:&enc},    " encoding
 set statusline+=%{&fileformat}]                 " file format
-set statusline+=[%{GitBranch()}]		" git branch info
+"set statusline+=[%{GitBranch()}]		" git branch info
 set statusline+=%=                              " right align
 set statusline+=[ASCII=\%b]\ [HEX=\%B]\ \       " ascii and hex code 
 set statusline+=[POS=%l,%v]\ [%p%%]\ [%L]       " position and offset
@@ -34,12 +37,15 @@ set statusline+=[POS=%l,%v]\ [%p%%]\ [%L]       " position and offset
 set title
 set scrolloff=3		" keep 3 lines when scrolling
 set showcmd		" display incomplete commands
-set hlsearch		" highlight searches
-set incsearch		" do incremental searching
 set ttyfast		" smoother changes
 set autoread		" set to auto read when a file is changed from the outside
-set ignorecase		" ignore case when searching
 set hidden
+
+" searching
+set hlsearch                    " highlight matches
+set incsearch                   " incremental searching
+set ignorecase                  " searches are case insensitive...
+set smartcase                   " ... unless they contain at least one capital letter
 
 " turn backup off, since most stuff is in SVN, git anyway...
 set nobackup
@@ -58,6 +64,7 @@ func! CompileRunGcc()
 	exec "!gcc -Wall % -o %<"
 	exec "! ./%<"
 endfunc
+
 nmap <F2> :w<CR>			" normal mode save file
 imap <F2> <ESC>:w<CR>i			" insert mode save file
 
@@ -87,6 +94,22 @@ if has('wildmenu')
         endif
 endif
 
+" templates
+autocmd BufNewFile *.c 0read ~/.vim/templates/c.tmpl
+
+" autoload plugin bundle
+call pathogen#infect()
+
+" Taglist
+nnoremap <silent> <F4> :TlistToggle<CR>
+let Tlist_Close_On_Select = 1 " close the taglist window when a file or tag is selected.
+let Tlist_Exit_OnlyWindow = 1 " if you are the last, kill yourself
+let Tlist_Compact_Format  = 1 " remove extra information and blank lines from the taglist window.
+let Tlist_Enable_Fold_Column = 0 " Don't Show the fold indicator column in the taglist window.
+
+" Nerdtree
+nnoremap <silent> <F3> :NERDTreeToggle<CR>
+
 " unused
 " map <F7> :set noautoindent nosmartindent nocindent<CR> " not needed rather use "+p "+y
 " map <F8> :set autoindent smartindent cindent<CR>
@@ -98,3 +121,8 @@ endif
 " set foldnestmax=10	" deepest fold is 10 levels
 " set foldlevel=1
 " colorscheme evening
+"
+" BUFFER EXPLOERE
+"  '\be' (normal open)  or
+"  '\bs' (force horizontal split open)  or
+"  '\bv' (force vertical split open)
